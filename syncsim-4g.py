@@ -28,7 +28,7 @@ class bcolors:
 
 	@staticmethod
 	def print_header( text ):
-		print bcolors.HEADER, 
+		print bcolors.HEADER,
 		print "=== " + text + " ===",
 		print bcolors.ENDC
 
@@ -56,7 +56,7 @@ class bcolors:
 # Operates on files. Searching for them, filename management, getting paths etc.
 #
 class FileHandler(object):
-	ALLOWED_FLIE_EXTENSIONS = [".zip", ".tar.bz2", ".tar.gz", ".7z", ".rar"]
+	ALLOWED_FLIE_EXTENSIONS = [".zip", ".tar.bz2", ".tar.gz", ".tar", ".7z", ".rar"]
 	ALLOWED_FLIE_EXTENSIONS.sort()
 	ALLOWED_FLIE_EXTENSIONS.reverse()
 
@@ -81,14 +81,14 @@ class FileHandler(object):
 	def find_group_file( search_path ):
 		group_regex = re.compile('\S*(?:group|grupp)\-?\D?([0-9]+)\S*', re.IGNORECASE)
 		lab_regex   = re.compile('\S*lab\-?([0-9]*)([a-c])?\S*'       , re.IGNORECASE)
-		
+
 		for (dirpath, dirnames, filenames) in os.walk(search_path):
 			for filename in filenames:
 				(basename, ext) = FileHandler.split_filename(filename)
 				# print basename, ext
 				if (ext == ""):
 					continue
-				
+
 				(group_num, )         = group_regex.match( basename ).groups()
 				(lab_num, lab_letter) =   lab_regex.match( basename ).groups()
 
@@ -101,7 +101,7 @@ class FileHandler(object):
 
 				if (group_num is None or group_num == ''): continue
 				if (lab_num   is None or lab_num   == ''): continue
-				
+
 				# Normalise group and lab numbers
 				group_num = int(group_num)
 				lab_name  = str(int(lab_num))
@@ -135,7 +135,7 @@ class FileHandler(object):
 	@staticmethod
 	def create_initial_file_structure(base_path):
 		print 'Creating default file structure.'
-		
+
 		print 'Creating {}/in...'.format(base_path)
 		print '\tPut archives here.'
 		os.mkdir(base_path+'/in')
@@ -147,14 +147,14 @@ class FileHandler(object):
 
 #
 # Unpacks files with delegates for different file extensions.
-# 
+#
 # TODO: Update help text to reflect the fact that the program depends on certain installed unpackers.
-# 
+#
 class Unpacker(object):
 
 	@staticmethod
 	def unpack( source_path, target_path ):
-		
+
 		extension = FileHandler.get_extension(source_path)
 
 		if extension:
@@ -166,6 +166,8 @@ class Unpacker(object):
 		if extension == '.tar.gz':
 			return Unpacker._unpack_tar(source_path, target_path)
 		elif extension == '.tar.bz2':
+			return Unpacker._unpack_tar(source_path, target_path)
+		elif extension == '.tar':
 			return Unpacker._unpack_tar(source_path, target_path)
 		elif extension == '.zip':
 			return Unpacker._unpack_zip(source_path, target_path)
@@ -218,12 +220,12 @@ Helper script for correcting labs in the LTU course D0013E.
 Example use:
 	syncsim-4g check -l lab1a -g 1 --output-mem
 
-This will look for a file on the format groupXXX-labYYY.ZZZ, where XXX is a 
+This will look for a file on the format groupXXX-labYYY.ZZZ, where XXX is a
 group number, YYY is the lab designation and ZZZ is a file extention suitable
 for a compressed folder. (The file name parser is quite nice with allowed file
 names. See exact regex if interested.)
 
-The file will be unpacked, the obj_dump will be sent to SyncSim and the 
+The file will be unpacked, the obj_dump will be sent to SyncSim and the
 modified memory locations will be printed on screen.
 
 More configuration options are possible, run
@@ -307,7 +309,7 @@ else            : program_name_allowed = ["mips_program.objdump"]
 program_path = None
 for program_name in program_name_allowed:
 	program_path = FileHandler.find_relative_path( out_dir, program_name )
-	if (program_path is None): 
+	if (program_path is None):
 		continue
 	else:
 		program_full_path = program_path + "/" + program_name
